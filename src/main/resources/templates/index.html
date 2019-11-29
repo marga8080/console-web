@@ -1,0 +1,96 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>控制台</title>
+	<link rel="stylesheet" th:href="@{/bootstrap-3.3.7/css/bootstrap.min.css}">
+	<script th:src="@{/jquery/jquery-1.11.3.min.js}"></script>
+	<script th:src="@{/bootstrap-3.3.7/js/bootstrap.min.js}"></script>
+	<style type="text/css">
+		.content {
+			border: 1px gray solid; 
+			margin-top: 10px;
+			color: white;
+			background-color: black;
+			min-height: 200px;
+			max-height: 500px;
+			overflow: auto;
+		}
+	</style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="form-inline" style="margin-top: 20px">
+	  <div class="form-group" >
+	    <label for="command">命令：</label>
+	    <input type="text" class="form-control" id="command" style="width: 400px" placeholder="命令">
+	  </div>
+	  <button type="button" class="btn btn-primary" onclick="exec()">执行</button>
+  </div>
+  <div id="content" class="content">
+  
+  </div>
+</div>
+ 
+</body>
+<script th:inline="javascript">
+	var cid = [[${cid}]];
+	var ip = [[${ip}]];
+	var port = [[${port}]];
+	var host = ip + ":" + port;
+
+    var socket;
+    if(typeof(WebSocket) == "undefined") {
+        console.log("您的浏览器不支持WebSocket");
+        $("#content").append("您的浏览器不支持WebSocket<br/>")
+    }else{
+        console.log("您的浏览器支持WebSocket");
+        //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接
+        //等同于
+        socket = new WebSocket("ws://" + host + "/websocket/" + cid);
+        //socket = new WebSocket("${basePath}websocket/${cid}".replace("http","ws"));
+        //打开事件
+        socket.onopen = function() {
+            console.log("Socket 已打开");
+            //socket.send("这是来自客户端的消息" + location.href + new Date());
+        };
+        //获得消息事件
+        socket.onmessage = function(msg) {
+            console.log(msg.data);
+            //发现消息进入    开始处理前端触发逻辑
+            $("#content").append(msg.data + "<br/>")
+        };
+        //关闭事件
+        socket.onclose = function() {
+            console.log("Socket已关闭");
+        };
+        //发生了错误事件
+        socket.onerror = function() {
+            alert("Socket发生了错误");
+            //此时可以尝试刷新页面
+        }
+        //离开页面时，关闭socket
+        //窗口关闭时，关闭连接
+        window.unload=function() {
+            socket.close();
+        };
+    }
+    
+    function exec() {
+    	var command = $("#command").val();
+    	$.ajax({
+            type: "post",
+            dataType: "json",
+            url: "http://" + host + "/exec",
+            contentType: "application/json;charset=UTF-8",
+            data: JSON.stringify({command, cid}),
+            success: function (data) {
+            	console.log(data)
+            }
+        });
+    }
+</script>
+</html>
