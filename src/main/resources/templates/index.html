@@ -85,7 +85,7 @@
     	$.ajax({
             type: "post",
             dataType: "json",
-            url: "http://" + host + "/exec",
+            url: "http://" + host + "/cmd/exec",
             contentType: "application/json;charset=UTF-8",
             data: JSON.stringify({command, cid}),
             success: function (data) {
