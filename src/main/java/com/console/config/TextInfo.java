@@ -19,6 +19,10 @@ public class TextInfo implements Serializable {
 	
 	private String charset = "UTF-8";
 	
+	private boolean head;
+	
+	private boolean last;
+	
 	public List<String> getData() {
 		return data;
 	}
@@ -65,6 +69,22 @@ public class TextInfo implements Serializable {
 
 	public void setCharset(String charset) {
 		this.charset = charset;
+	}
+
+	public boolean isHead() {
+		return head;
+	}
+
+	public void setHead(boolean head) {
+		this.head = head;
+	}
+
+	public boolean isLast() {
+		return last;
+	}
+
+	public void setLast(boolean last) {
+		this.last = last;
 	}
 
 }

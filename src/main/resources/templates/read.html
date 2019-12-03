@@ -1,0 +1,80 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>控制台</title>
+	<link rel="stylesheet" href="./bootstrap-3.3.7/css/bootstrap.min.css"/>
+	<script src="./jquery/jquery-1.11.3.min.js"></script>
+	<script src="./bootstrap-3.3.7/js/bootstrap.min.js"></script>
+	<style type="text/css">
+		.content {
+			border: 1px gray solid; 
+			margin-top: 10px;
+			color: white;
+			background-color: black;
+			min-height: 200px;
+			max-height: 500px;
+			overflow: auto;
+		}
+	</style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="form-inline" style="margin-top: 20px">
+	  <div class="form-group" >
+	    <label for="filepath">文件路径：</label>
+	    <input type="text" class="form-control" id="filepath" style="width: 500px" placeholder="服务器上的文件路径">
+	  </div>
+	  <button type="button" class="btn btn-primary" id="load" onclick="read('next', true)">读取</button>
+	  <button type="button" class="btn btn-primary" disabled="disabled" id="prev" onclick="read('prev')">上一页</button>
+	  <button type="button" class="btn btn-primary" disabled="disabled" id="next" onclick="read('next')">下一页</button>
+	  <button type="button" class="btn btn-primary" disabled="disabled" id="last" onclick="read('prev', true)">末尾</button>
+  </div>
+  <div id="content" class="content">
+  
+  </div>
+</div>
+ 
+</body>
+<script th:inline="javascript">
+	var ip = [[${ip}]];
+	var port = [[${port}]];
+	var host = ip + ":" + port;
+	console.log(host)
+
+	var position = 0;
+    
+    function read(type, flag) {
+    	var filePath = $("#filepath").val();
+    	if (!filePath || filePath == '') {
+    		alert("请输入文件路径")
+    		return;
+    	}
+    	var url = "http://" + host + "/read/" + type;
+    	if (flag) {
+    		url += "?" + (type == 'next' ? "head=true" : "last=true");
+    	}
+    	$.ajax({
+            type: "post",
+            dataType: "json",
+            url: url,
+            contentType: "application/json;charset=UTF-8",
+            data: JSON.stringify({filePath, position}),
+            success: function (res) {
+            	position = res.position;
+            	$("#last").attr("disabled",false);
+            	$("#prev").attr("disabled", res.head);
+            	$("#next").attr("disabled", res.last);
+            	$("#content").empty();
+            	var data = res.data;
+            	if (data) {
+            		data.map(item => $("#content").append(item + "<br/>"));
+            	}
+            }
+        });
+    }
+</script>
+</html>

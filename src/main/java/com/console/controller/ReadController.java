@@ -7,50 +7,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.console.config.TextInfo;
-import com.google.common.base.Joiner;
 
 
 @RestController
-@RequestMapping("readLog")
+@RequestMapping("read")
 public class ReadController {
 	
-	int READNUM = 100; //一次读取100行
-
-	public static void main(String[] args) throws IOException {
-		//String pathname = "C:\\Users\\Administrator\\Desktop\\data_1080326282719399898.json";
-		//String pathname = "C:\\Users\\Administrator\\Desktop\\机构用户索引.txt";
-		String pathname = "C:\\Users\\Administrator\\Desktop\\28\\provider.out";
-		TextInfo textInfo = new TextInfo();
-		textInfo.setFilePath(pathname);
-		textInfo.setLineSize(100);
-		textInfo.setCharset("GBK");
-		textInfo.setPosition(0);
-		textInfo = goRead(textInfo);
-		String x = Joiner.on("\n").join(textInfo.getData());
-		System.out.println(x);
-		System.out.println("===========================");
-		textInfo = backRead(textInfo, true);
-		x = Joiner.on("\n").join(textInfo.getData());
-		System.out.println(x);
-	}
+//	final static String HEAD = "head"; 
+//	final static String LAST = "last"; 
 	
-	@GetMapping("read")
-	public Object read(String filepath) {
-		
-		return null;
-	}
+	
 
 	/**
 	 * start -> end
 	 * @param textInfo
+	 * @param head
 	 * @return
 	 */
-	public static TextInfo goRead(TextInfo textInfo) {
+	@PostMapping("next")
+	public TextInfo readNext(@RequestBody TextInfo textInfo, boolean head) {
+		textInfo.setHead(head);
+		textInfo.setLast(false);
 		List<String> result = new ArrayList<String>();
 		File file = new File(textInfo.getFilePath());
 		if (!file.exists() || file.isDirectory() || !file.canRead()) {
@@ -61,6 +44,9 @@ public class ReadController {
 			fileRead = new RandomAccessFile(file, "r"); // 用读模式
 			long length = fileRead.length();// 获得文件长度
 			long pos = textInfo.getPosition();
+			if (head) {
+				pos = 0;
+			}
 			if (pos > length - 1 || pos < 0) {
 				return textInfo;
 			}
@@ -109,10 +95,13 @@ public class ReadController {
 	/**
 	 * end -> start
 	 * @param textInfo
-	 * @param goLast
+	 * @param last
 	 * @return
 	 */
-	public static TextInfo backRead(TextInfo textInfo, boolean goLast) {
+	@PostMapping("prev")
+	public TextInfo readPrev(@RequestBody TextInfo textInfo, boolean last) {
+		textInfo.setLast(last);
+		textInfo.setHead(false);
 		List<String> result = new ArrayList<String>();
 		File file = new File(textInfo.getFilePath());
 		if (!file.exists() || file.isDirectory() || !file.canRead()) {
@@ -123,7 +112,7 @@ public class ReadController {
 			fileRead = new RandomAccessFile(file, "r"); // 用读模式
 			long length = fileRead.length();// 获得文件长度
 			long pos = textInfo.getPosition();
-			if (goLast) {
+			if (last) {
 				pos = length - 1;
 			}
 			if (pos > length - 1 || pos < 0) {

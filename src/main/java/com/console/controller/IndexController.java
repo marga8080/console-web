@@ -32,8 +32,17 @@ public class IndexController {
 		model.addAttribute("port", port);
 		model.addAttribute("cid", cid);
 		logger.info("ip:{}, port:{}, cid:{}", ip, port , cid);
-		return "index";
+		return "read";
 	}
 	
-	
+	@RequestMapping("cmd")
+	public String cmd(HttpServletRequest request, Model model) {
+		String cid = IdUtil.fastSimpleUUID();
+		String port = environment.getProperty("local.server.port");
+		model.addAttribute("ip", ip);
+		model.addAttribute("port", port);
+		model.addAttribute("cid", cid);
+		logger.info("ip:{}, port:{}, cid:{}", ip, port , cid);
+		return "cmd";
+	}
 }
