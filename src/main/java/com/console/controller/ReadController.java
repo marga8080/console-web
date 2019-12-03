@@ -46,6 +46,7 @@ public class ReadController {
 			long pos = textInfo.getPosition();
 			if (head) {
 				pos = 0;
+				textInfo.setPosition(pos);
 			}
 			if (pos > length - 1 || pos < 0) {
 				return textInfo;
@@ -71,6 +72,12 @@ public class ReadController {
 					}
 					if (lineNum >= textInfo.getLineSize()) {// 满足指定行数 退出。
 						break;
+					}
+				}
+				if (lineNum < textInfo.getLineSize()) {
+					textInfo.setLast(true);
+					if (textInfo.getPosition() == 0) {
+						textInfo.setHead(true);
 					}
 				}
 			}
@@ -114,6 +121,7 @@ public class ReadController {
 			long pos = textInfo.getPosition();
 			if (last) {
 				pos = length - 1;
+				textInfo.setPosition(pos);
 			}
 			if (pos > length - 1 || pos < 0) {
 				return textInfo;
@@ -139,6 +147,12 @@ public class ReadController {
 					fileRead.seek(0);
 					String line = new String(fileRead.readLine().getBytes("ISO-8859-1"), textInfo.getCharset());
 					result.add(line);
+				}
+				if (lineNum < textInfo.getLineSize()) {
+					textInfo.setLast(true);
+					if (textInfo.getPosition() == length - 1) {
+						textInfo.setHead(true);
+					}
 				}
 			}
 			textInfo.setLength(length);
