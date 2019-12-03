@@ -32,8 +32,6 @@ public class ReadController {
 	 */
 	@PostMapping("next")
 	public TextInfo readNext(@RequestBody TextInfo textInfo, boolean head) {
-		textInfo.setHead(head);
-		textInfo.setLast(false);
 		List<String> result = new ArrayList<String>();
 		File file = new File(textInfo.getFilePath());
 		if (!file.exists() || file.isDirectory() || !file.canRead()) {
@@ -46,7 +44,6 @@ public class ReadController {
 			long pos = textInfo.getPosition();
 			if (head) {
 				pos = 0;
-				textInfo.setPosition(pos);
 			}
 			if (pos > length - 1 || pos < 0) {
 				return textInfo;
@@ -74,13 +71,9 @@ public class ReadController {
 						break;
 					}
 				}
-				if (lineNum < textInfo.getLineSize()) {
-					textInfo.setLast(true);
-					if (textInfo.getPosition() == 0) {
-						textInfo.setHead(true);
-					}
-				}
 			}
+			System.out.println(length);
+			System.out.println(pos);
 			textInfo.setLength(length);
 			textInfo.setPosition(pos);
 			textInfo.setData(result);
@@ -107,8 +100,6 @@ public class ReadController {
 	 */
 	@PostMapping("prev")
 	public TextInfo readPrev(@RequestBody TextInfo textInfo, boolean last) {
-		textInfo.setLast(last);
-		textInfo.setHead(false);
 		List<String> result = new ArrayList<String>();
 		File file = new File(textInfo.getFilePath());
 		if (!file.exists() || file.isDirectory() || !file.canRead()) {
@@ -121,7 +112,6 @@ public class ReadController {
 			long pos = textInfo.getPosition();
 			if (last) {
 				pos = length - 1;
-				textInfo.setPosition(pos);
 			}
 			if (pos > length - 1 || pos < 0) {
 				return textInfo;
@@ -147,12 +137,6 @@ public class ReadController {
 					fileRead.seek(0);
 					String line = new String(fileRead.readLine().getBytes("ISO-8859-1"), textInfo.getCharset());
 					result.add(line);
-				}
-				if (lineNum < textInfo.getLineSize()) {
-					textInfo.setLast(true);
-					if (textInfo.getPosition() == length - 1) {
-						textInfo.setHead(true);
-					}
 				}
 			}
 			textInfo.setLength(length);

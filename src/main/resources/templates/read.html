@@ -66,8 +66,16 @@
             success: function (res) {
             	position = res.position;
             	$("#last").attr("disabled",false);
-            	$("#prev").attr("disabled", res.head);
-            	$("#next").attr("disabled", res.last);
+            	$("#prev").attr("disabled", false);
+            	$("#next").attr("disabled", false);
+            	var length = res.length;
+            	console.log(length, position);
+            	if (position + 1 >= length - 1) {
+            		$("#next").attr("disabled", true);
+            	}
+            	if (position <= 0) {
+            		$("#prev").attr("disabled", true);
+            	}
             	$("#content").empty();
             	var data = res.data;
             	if (data) {
