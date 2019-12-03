@@ -107,6 +107,7 @@
             		$("#content").empty();
             		data.map(item => $("#content").append(item + "<br/>"));
             		$("#content").append(content);
+            		content = null;
             	}
             }
         });

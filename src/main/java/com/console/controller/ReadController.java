@@ -72,8 +72,6 @@ public class ReadController {
 					}
 				}
 			}
-			System.out.println(length);
-			System.out.println(pos);
 			textInfo.setLength(length);
 			textInfo.setPosition(pos);
 			textInfo.setData(result);
