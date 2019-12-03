@@ -16,7 +16,7 @@
 			color: white;
 			background-color: black;
 			min-height: 200px;
-			max-height: 500px;
+			max-height: 700px;
 			overflow: auto;
 		}
 	</style>
@@ -28,10 +28,11 @@
 	    <label for="filepath">文件路径：</label>
 	    <input type="text" class="form-control" id="filepath" style="width: 500px" placeholder="服务器上的文件路径">
 	  </div>
-	  <button type="button" class="btn btn-primary" id="load" onclick="read('next', true)">读取</button>
-	  <button type="button" class="btn btn-primary" disabled="disabled" id="prev" onclick="read('prev')">上一页</button>
-	  <button type="button" class="btn btn-primary" disabled="disabled" id="next" onclick="read('next')">下一页</button>
-	  <button type="button" class="btn btn-primary" disabled="disabled" id="last" onclick="read('prev', true)">末尾</button>
+	  <button type="button" class="btn btn-success" id="load" onclick="next(true)">从头读入</button>
+	  <button type="button" class="btn btn-primary" disabled="disabled" id="next" onclick="next()">下一页</button>
+	  &nbsp;&nbsp;&nbsp;&nbsp;
+	  <button type="button" class="btn btn-success" id="last" onclick="prev(true)">末尾读入</button>
+	  <button type="button" class="btn btn-primary" disabled="disabled" id="prev" onclick="prev()">上一页</button>
   </div>
   <div id="content" class="content">
   
@@ -47,15 +48,17 @@
 
 	var position = 0;
     
-    function read(type, flag) {
+    function next(flag) {
     	var filePath = $("#filepath").val();
     	if (!filePath || filePath == '') {
     		alert("请输入文件路径")
     		return;
     	}
-    	var url = "http://" + host + "/read/" + type;
+    	$("#prev").attr("disabled", true);
+    	var url = "http://" + host + "/read/next";
     	if (flag) {
-    		url += "?" + (type == 'next' ? "head=true" : "last=true");
+    		$("#content").empty();
+    		url += "?head=true";
     	}
     	$.ajax({
             type: "post",
@@ -65,21 +68,45 @@
             data: JSON.stringify({filePath, position}),
             success: function (res) {
             	position = res.position;
-            	$("#last").attr("disabled",false);
-            	$("#prev").attr("disabled", false);
             	$("#next").attr("disabled", false);
             	var length = res.length;
-            	console.log(length, position);
-            	if (position + 1 >= length - 1) {
-            		$("#next").attr("disabled", true);
-            	}
-            	if (position <= 0) {
-            		$("#prev").attr("disabled", true);
-            	}
-            	$("#content").empty();
             	var data = res.data;
             	if (data) {
             		data.map(item => $("#content").append(item + "<br/>"));
+            	}
+            }
+        });
+    }
+    
+    
+    function prev(flag) {
+    	var filePath = $("#filepath").val();
+    	if (!filePath || filePath == '') {
+    		alert("请输入文件路径")
+    		return;
+    	}
+    	$("#next").attr("disabled", true);
+    	var url = "http://" + host + "/read/prev";
+    	if (flag) {
+    		$("#content").empty();
+    		url += "?last=true";
+    	}
+    	$.ajax({
+            type: "post",
+            dataType: "json",
+            url: url,
+            contentType: "application/json;charset=UTF-8",
+            data: JSON.stringify({filePath, position}),
+            success: function (res) {
+            	position = res.position;
+            	$("#prev").attr("disabled", false);
+            	var length = res.length;
+            	var data = res.data;
+            	if (data) {
+            		var content = $("#content").html();
+            		$("#content").empty();
+            		data.map(item => $("#content").append(item + "<br/>"));
+            		$("#content").append(content);
             	}
             }
         });
